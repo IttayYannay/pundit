@@ -10,7 +10,7 @@ var registerInformation = new Schema({
     state: String,
     city: String,
     username: String,
-   // blackList : list,
+   // blackList : Number,
     password: Schema.Types.Mixed,
     salt : Schema.Types.Mixed
 });
