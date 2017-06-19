@@ -115,19 +115,50 @@ router.get('/admin/userData',function(req,res){
 });
 //register a user into the service
 router.post('/registration',jsonParser,function(req,res){
-  var singleUser = new register();
-  createDocForUser(singleUser,req);
-  createHashPassword(singleUser,function(user,password,salt){
-    user.salt = salt; 
-    user.password = password;
-    user.save(function(err){
-        if (err) throw err;
-    });
-  });
-  //return the _id of the doc that was created for the user
-  res.json({status:true , _id : singleUser._id}); 
-  //res.send('Registration succeeded');
-  
+ register.findOne({email : req.body.email},function(err,email){
+     if(err) throw err;
+     if(email){
+        res.setHeader("Content-Type", "application/json");
+        res.json({status : false , message:"Email already exist"});
+     }
+     else{
+         register.findOne({username : req.body.username},function(err,name){
+             if(err) throw err;
+             if(name){
+                 res.setHeader("Content-Type", "application/json");
+                 res.json({status : false , message:"User name already exist"});
+             }
+             else{
+                register.findOne({phoneNumber : req.body.pn},function(err,pn){
+                if(err) throw err;
+                if(pn){
+                    res.setHeader("Content-Type", "application/json");
+                    res.json({status : false , message:"Phone number already exist"});
+                }
+                else{
+                    var singleUser = new register();
+                    singleUser.phoneNumber = req.body.pn;
+                    singleUser.email = req.body.email;
+                    singleUser.state = req.body.state;
+                    singleUser.city = req.body.city;
+                    singleUser.username = req.body.username;
+                    singleUser.password = req.body.password;
+                    createHashPassword(singleUser,function(user,password,salt){
+                        user.salt = salt; 
+                        user.password = password;
+                        user.save(function(err){
+                            if (err) throw err;
+                            //return the _id of the doc that was created for the user
+                            res.setHeader("Content-Type", "application/json"); 
+                            res.json({status:true , _id : singleUser._id}); 
+                        });
+                    });    
+                }
+              });
+            }
+        });
+     }
+ });
 });
 
 
